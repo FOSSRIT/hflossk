@@ -11,8 +11,7 @@ import os
 from datetime import datetime
 
 import yaml
-from flask import Flask, jsonify
-from flask_mako import MakoTemplates, render_template
+from flask import Flask, jsonify, render_template
 from werkzeug.exceptions import NotFound
 
 from hflossk.blueprints import homework, lectures, quizzes
@@ -21,7 +20,6 @@ from hflossk.util import count_posts
 
 app = Flask(__name__)
 app.template_folder = "templates"
-mako = MakoTemplates(app)
 base_dir = os.path.split(__file__)[0]
 
 
@@ -32,7 +30,6 @@ def inject_yaml():
         site_config = yaml.safe_load(site_yaml)
     return site_config
 
-app.config['MAKO_TRANSLATE_EXCEPTIONS'] = False
 config = inject_yaml()
 COURSE_START = datetime.combine(config['course']['start'], datetime.min.time())
 COURSE_END = datetime.combine(config['course']['end'], datetime.max.time())
@@ -59,13 +56,13 @@ def gravatar(email):
 @app.route('/<page>')
 def simple_page(page):
     """
-    Render a simple page. Looks for a .mak template file
+    Render a simple page. Looks for a .html template file
     with the name of the page parameter that was passed in.
     By default, this just shows the homepage.
 
     """
 
-    return render_template('{}.mak'.format(page), name='mako')
+    return render_template('{}.html'.format(page))
 
 
 @app.route('/static/manifest.webapp')
@@ -86,7 +83,7 @@ def syllabus():
 
     with open(os.path.join(base_dir, 'schedule.yaml')) as schedule_yaml:
         schedule = yaml.safe_load(schedule_yaml)
-    return render_template('syllabus.mak', schedule=schedule, name='mako')
+    return render_template('syllabus.html', schedule=schedule)
 
 
 @app.route('/blog/<username>')
@@ -125,7 +122,7 @@ def participant_page(year, term, username):
                                   year, term, username + '.yaml'))
     with open(person_yaml) as participant_file:
         return render_template(
-            'participant.mak', name='make',
+            'participant.html',
             participant_data=yaml.safe_load(participant_file),
             gravatar=gravatar
         )
@@ -142,14 +139,14 @@ def resources():
     res['Videos'] = os.listdir(os.path.join(
         base_dir, 'static', 'videos'))
 
-    return render_template('resources.mak', name='mako', resources=res)
+    return render_template('resources.html', resources=res)
 
 
-app.register_blueprint(homework, url_prefix='/assignments')
-app.register_blueprint(homework, url_prefix='/hw')
+app.register_blueprint(homework, url_prefix='/assignments', name='assignments')
+app.register_blueprint(homework, url_prefix='/hw', name='hw')
 app.register_blueprint(lectures, url_prefix='/lectures')
-app.register_blueprint(quizzes, url_prefix='/quizzes')
-app.register_blueprint(quizzes, url_prefix='/quiz')
-app.register_blueprint(participants_bp, url_prefix='/participants')
-app.register_blueprint(participants_bp, url_prefix='/blogs')
-app.register_blueprint(participants_bp, url_prefix='/checkblogs')
+app.register_blueprint(quizzes, url_prefix='/quizzes', name='quizzes')
+app.register_blueprint(quizzes, url_prefix='/quiz', name='quiz')
+app.register_blueprint(participants_bp, url_prefix='/participants', name='participants')
+app.register_blueprint(participants_bp, url_prefix='/blogs', name='blogs')
+app.register_blueprint(participants_bp, url_prefix='/checkblogs', name='checkblogs')

@@ -3,8 +3,7 @@ from datetime import date, datetime, timedelta
 
 import hflossk
 import yaml
-from flask import Blueprint
-from flask_mako import render_template
+from flask import Blueprint, render_template
 
 
 participants_bp = Blueprint('participants_bp',
@@ -85,6 +84,9 @@ def participants(root_dir):
                     )
                     contents['isActive'] = (currentYear in year_term_data
                                             and currentTerm in year_term_data)
+                    # Ensure hw dict exists for template iteration
+                    if 'hw' not in contents:
+                        contents['hw'] = {}
 
                     student_data.append(contents)
 
@@ -97,10 +99,8 @@ def participants(root_dir):
                         len(assignments))
 
     return render_template(
-        'blogs.mak', name='mako',
+        'blogs.html',
         student_data=student_data,
         gravatar=hflossk.site.gravatar,
         target_number=target_number
     )
-
-#
