@@ -1,11 +1,9 @@
 import os
+from datetime import date, datetime, timedelta
 
-import yaml
-
-from flask import Blueprint
-from flask.ext.mako import render_template
-from datetime import datetime, date, timedelta
 import hflossk
+import yaml
+from flask import Blueprint, render_template
 
 
 participants_bp = Blueprint('participants_bp',
@@ -71,10 +69,14 @@ def participants(root_dir):
     for dirpath, dirnames, files in os.walk(yaml_dir):
         for fname in files:
             if fname.endswith('.yaml'):
+                year_term_data = dirpath.split('/')
+                # Skip YAML files not at the expected depth
+                # (scripts/people/<year>/<term>/<name>.yaml)
+                if len(year_term_data) < 4:
+                    continue
                 with open(dirpath + '/' + fname) as students:
-                    contents = yaml.load(students)
+                    contents = yaml.safe_load(students)
                     contents['yaml'] = dirpath + '/' + fname
-                    year_term_data = dirpath.split('/')
                     contents['participant_page'] = "{y}/{t}/{u}".format(
                         y=year_term_data[2],
                         t=year_term_data[3],
@@ -82,6 +84,9 @@ def participants(root_dir):
                     )
                     contents['isActive'] = (currentYear in year_term_data
                                             and currentTerm in year_term_data)
+                    # Ensure hw dict exists for template iteration
+                    if 'hw' not in contents:
+                        contents['hw'] = {}
 
                     student_data.append(contents)
 
@@ -94,10 +99,8 @@ def participants(root_dir):
                         len(assignments))
 
     return render_template(
-        'blogs.mak', name='mako',
+        'blogs.html',
         student_data=student_data,
         gravatar=hflossk.site.gravatar,
         target_number=target_number
     )
-
-#

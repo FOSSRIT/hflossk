@@ -1,0 +1,30 @@
+{% extends "master.html" %}
+
+{% block body %}
+
+<div class="jumbotron">
+    <h1>{{ course['name'] }}</h1>
+    <p>{{ course['desc'] }}</p>
+    <a class="btn btn-default" id="mozinstall">FxOS?</a>
+</div>
+
+<div class="row">
+<div class="col-md-4">
+  <h2>Twitter Bootstrap</h2>
+  <p><em>"Sleek, intuitive, and powerful mobile first front-end framework for faster and easier web development."</em></p>
+  <p><a target="_blank" class="btn" href="http://getbootstrap.com/">View details &raquo;</a></p>
+</div><!--/span-->
+<div class="col-md-4">
+  <h2>Flask</h2>
+  <p><em>"Flask is a microframework for Python based on Werkzeug, Jinja 2 and good intentions."</em></p>
+  <p><a class="btn" target="_blank" href="https://flask.palletsprojects.com/">View details &raquo;</a></p>
+</div><!--/span-->
+<div class="col-md-4">
+  <h2>Jinja2</h2>
+  <p><em>"Jinja is a fast, expressive, extensible templating engine. It is Flask's
+  built-in template language, making it easy to generate HTML with Python
+  data and logic."</em></p>
+  <p><a class="btn" target="_blank" href="https://jinja.palletsprojects.com/">View details &raquo;</a></p>
+</div><!--/span-->
+</div><!--/row-->
+{% endblock %}

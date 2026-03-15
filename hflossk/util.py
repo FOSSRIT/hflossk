@@ -1,6 +1,7 @@
 import time
-import feedparser
 from datetime import datetime
+
+import feedparser
 
 
 def count_posts(feed, start_dt):
