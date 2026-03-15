@@ -1,11 +1,10 @@
 import os
+from datetime import date, datetime, timedelta
 
-import yaml
-
-from flask import Blueprint
-from flask.ext.mako import render_template
-from datetime import datetime, date, timedelta
 import hflossk
+import yaml
+from flask import Blueprint
+from flask_mako import render_template
 
 
 participants_bp = Blueprint('participants_bp',
@@ -71,10 +70,14 @@ def participants(root_dir):
     for dirpath, dirnames, files in os.walk(yaml_dir):
         for fname in files:
             if fname.endswith('.yaml'):
+                year_term_data = dirpath.split('/')
+                # Skip YAML files not at the expected depth
+                # (scripts/people/<year>/<term>/<name>.yaml)
+                if len(year_term_data) < 4:
+                    continue
                 with open(dirpath + '/' + fname) as students:
-                    contents = yaml.load(students)
+                    contents = yaml.safe_load(students)
                     contents['yaml'] = dirpath + '/' + fname
-                    year_term_data = dirpath.split('/')
                     contents['participant_page'] = "{y}/{t}/{u}".format(
                         y=year_term_data[2],
                         t=year_term_data[3],

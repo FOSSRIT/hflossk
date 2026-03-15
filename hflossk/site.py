@@ -6,22 +6,18 @@ License: Apache 2.0
 
 """
 
-from __future__ import division
-
-import os
-import yaml
 import hashlib
+import os
 from datetime import datetime
 
-# flask dependencies
+import yaml
 from flask import Flask, jsonify
-from flask.ext.mako import MakoTemplates, render_template
+from flask_mako import MakoTemplates, render_template
 from werkzeug.exceptions import NotFound
 
-# hflossk
-from hflossk.util import count_posts
 from hflossk.blueprints import homework, lectures, quizzes
 from hflossk.participants import participants_bp
+from hflossk.util import count_posts
 
 app = Flask(__name__)
 app.template_folder = "templates"
@@ -33,7 +29,7 @@ base_dir = os.path.split(__file__)[0]
 @app.context_processor
 def inject_yaml():
     with open(os.path.join(base_dir, 'site.yaml')) as site_yaml:
-        site_config = yaml.load(site_yaml)
+        site_config = yaml.safe_load(site_yaml)
     return site_config
 
 app.config['MAKO_TRANSLATE_EXCEPTIONS'] = False
@@ -52,7 +48,7 @@ def gravatar(email):
 
     """
 
-    email = email.encode('utf8').lower()
+    email = email.lower().encode('utf8')
     slug = hashlib.md5(email).hexdigest()
     libravatarURL = "https://seccdn.libravatar.org/avatar/"
     gravatarURL = "https://secure.gravatar.com/avatar/"
@@ -89,7 +85,7 @@ def syllabus():
     """
 
     with open(os.path.join(base_dir, 'schedule.yaml')) as schedule_yaml:
-        schedule = yaml.load(schedule_yaml)
+        schedule = yaml.safe_load(schedule_yaml)
     return render_template('syllabus.mak', schedule=schedule, name='mako')
 
 
@@ -107,7 +103,7 @@ def blog_posts(username):
         for fname in files:
             if (username + '.yaml').lower() == fname.lower():
                 with open(os.path.join(dirpath, fname)) as student_file:
-                    student_data = yaml.load(student_file)
+                    student_data = yaml.safe_load(student_file)
 
     if 'feed' in student_data:
         print("Checking %s's blog feed." % username)
@@ -130,7 +126,7 @@ def participant_page(year, term, username):
     with open(person_yaml) as participant_file:
         return render_template(
             'participant.mak', name='make',
-            participant_data=yaml.load(participant_file),
+            participant_data=yaml.safe_load(participant_file),
             gravatar=gravatar
         )
 
